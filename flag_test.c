@@ -9,7 +9,7 @@
 
 extern char* strdup(const char*);
 
-int main(int argc, char** argv) {
+int main(void) {
     const char** str_flag_def = flag_str("str-def", "Hello, World!", "string flag");
     int64_t* int64_flag_def = flag_int64("int64-def", 42, "int64 flag");
     bool* bool_flag_def = flag_bool("bool-def", false, "bool flag");
