@@ -34,8 +34,8 @@ jobs:
     - name: run
       shell: cmd
       run: |
-        call "example_c.exe"
-        call "example_cxx.exe -str='bla bla' -int64=-69 -bool=true"
+        call example_c.exe
+        call example_cxx.exe -str="bla bla" -int64=-69 -bool=true
 
   ci-macos:
     runs-on: macos-latest
