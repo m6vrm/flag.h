@@ -20,7 +20,7 @@ jobs:
     - name: run
       run: |
         ./example_c
-        ./example_cxx
+        ./example_cxx -str="bla bla" -int64=-69 -bool=true
 
   ci-windows:
     runs-on: windows-latest
@@ -35,7 +35,7 @@ jobs:
       shell: cmd
       run: |
         call "example_c.exe"
-        call "example_cxx.exe"
+        call "example_cxx.exe -str="bla bla" -int64=-69 -bool=true"
 
   ci-macos:
     runs-on: macos-latest
@@ -48,4 +48,4 @@ jobs:
     - name: run
       run: |
         ./example_c
-        ./example_cxx
+        ./example_cxx -str="bla bla" -int64=-69 -bool=true
