@@ -14,6 +14,7 @@ void flag_usage(FILE* stream);
 #ifdef FLAG_IMPLEMENTATION
 
 #include <assert.h>
+#include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
 
