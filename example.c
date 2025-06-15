@@ -10,7 +10,7 @@
 int main(int argc, char** argv) {
     const char** str_flag = flag_str("str", "Hello, World!", "String flag");
     int64_t* int64_flag = flag_int64("int64", 42, "Int64 flag");
-    bool* bool_flag = flag_bool("flag", false, "Bool flag");
+    bool* bool_flag = flag_bool("bool", false, "Bool flag");
     bool* help_flag = flag_bool("help", false, "Show help");
 
     if (!flag_parse(argc, argv)) {
