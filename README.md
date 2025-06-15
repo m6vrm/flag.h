@@ -1,3 +1,14 @@
+flag.h
+======
+
+Command-line flag parsing in C.
+
+Inspired by Go flag package: https://pkg.go.dev/flag
+
+Example
+-------
+
+```c
 #include <inttypes.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -29,3 +40,7 @@ int main(int argc, char** argv) {
 
     return EXIT_SUCCESS;
 }
+```
+
+    cc -o example example.c
+    ./example
