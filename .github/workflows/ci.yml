@@ -40,7 +40,6 @@ jobs:
   ci-macos:
     runs-on: macos-latest
     steps:
-    steps:
     - uses: actions/checkout@v4
     - name: build nob
       run: cc -o nob nob.c -Wall -Wextra -Wpedantic
