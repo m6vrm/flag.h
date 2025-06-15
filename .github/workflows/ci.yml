@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
+
+jobs:
+  ci-linux:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: build
+      run: |
+        cc -o exampe_c example.c -Wall -Wextra -Wpedantic -std=c99
+        c++ -o example_cxx example.c -Wall -Wextra -Wpedantic -std=c++20
+    - name: run
+      run: |
+        ./example_c
+        ./example_cxx
+
+  ci-windows:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: build
+      shell: cmd
+      run: |
+        clang -o example_c.exe example.c -Wall -Wextra -Wpedantic -std=c99
+        clang++ -o example_cxx.exe example.c -Wall -Wextra -Wpedantic -std=c++20
+    - name: run
+      shell: cmd
+      run: |
+        call "example_c.exe"
+        call "example_cxx.exe"
+
+  ci-macos:
+    runs-on: macos-latest
+    steps:
+    steps:
+    - uses: actions/checkout@v4
+    - name: build nob
+      run: cc -o nob nob.c -Wall -Wextra -Wpedantic
+    - name: build example
+      run: ./nob
+    - name: run example
+      run: ./build/example
