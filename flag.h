@@ -9,7 +9,7 @@ const char** flag_str(const char* name, const char* def, const char* desc);
 int64_t* flag_int64(const char* name, int64_t def, const char* desc);
 bool* flag_bool(const char* name, bool def, const char* desc);
 bool flag_parse(int argc, char** argv);
-void flag_usage(FILE* stream);
+void flag_usage(FILE* out);
 
 #ifdef FLAG_IMPLEMENTATION
 
@@ -133,33 +133,53 @@ bool flag_parse(int argc, char** argv) {
     return true;
 }
 
-void flag_usage(FILE* stream) {
+void flag_usage(FILE* out) {
     assert(flag_program != NULL);
-    fprintf(stream, "usage: %s [flags]\n", flag_program);
+    fprintf(out, "usage: %s [flags]\n", flag_program);
     if (flags_count > 0)
-        fprintf(stream, "\nflags:\n");
+        fprintf(out, "\n");
 
     for (int i = 0; i < flags_count; ++i) {
         Flag* flag = &flags[i];
+
+        // name
+        char name[64];
+        int name_len = 0;
         switch (flag->type) {
             case FLAG_STR: {
-                fprintf(stream, "  -%s=string\n", flag->name);
-                fprintf(stream, "        %s", flag->desc);
-                if (flag->def.as_str != NULL)
-                    fprintf(stream, " (default \"%s\")\n", flag->def.as_str);
+                name_len = snprintf(name, sizeof(name), "  -%s=string", flag->name);
             } break;
             case FLAG_INT64: {
-                fprintf(stream, "  -%s=number\n", flag->name);
-                fprintf(stream, "        %s", flag->desc);
-                fprintf(stream, " (default %" PRIi64 ")\n", flag->def.as_int64);
+                name_len = snprintf(name, sizeof(name), "  -%s=number", flag->name);
             } break;
             case FLAG_BOOL: {
-                fprintf(stream, "  -%s\n", flag->name);
-                fprintf(stream, "        %s\n", flag->desc);
-                if (flag->def.as_bool)
-                    fprintf(stream, " (default true)\n");
+                name_len = snprintf(name, sizeof(name), "  -%s", flag->name);
             } break;
         }
+
+        // description
+        if (name_len <= 27) {
+            fprintf(out, "%-27s  %s", name, flag->desc);
+        } else {
+            fprintf(out, "%s\n%38s", name, flag->desc);
+        }
+
+        // default
+        switch (flag->type) {
+            case FLAG_STR: {
+                if (flag->def.as_str != NULL)
+                    fprintf(out, " (default \"%s\")", flag->def.as_str);
+            } break;
+            case FLAG_INT64: {
+                fprintf(out, " (default %" PRIi64 ")", flag->def.as_int64);
+            } break;
+            case FLAG_BOOL: {
+                if (flag->def.as_bool)
+                    fprintf(out, " (default)");
+            } break;
+        }
+
+        fprintf(out, "\n");
     }
 }
 
