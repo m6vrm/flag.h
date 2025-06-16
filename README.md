@@ -43,4 +43,4 @@ int main(int argc, char** argv) {
 ```
 
     cc -o example example.c
-    ./example
+    ./example -help
