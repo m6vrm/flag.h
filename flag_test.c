@@ -18,8 +18,8 @@ int main(void) {
     int64_t* int64_flag = flag_int64("int64", 42, "int64 flag");
     bool* bool_flag = flag_bool("bool", false, "bool flag");
 
-    char* args[] = {strdup("flag_test"), strdup("-str=bla bla"), strdup("-int64=-69"),
-                    strdup("-bool=true")};
+    char* args[] = {strdup("flag_test"), strdup("--str=bla bla"), strdup("--int64=-69"),
+                    strdup("--bool=true")};
 
     assert(flag_parse(sizeof(args) / sizeof(args[0]), args));
     assert(strcmp(*str_flag_def, "Hello, World!") == 0);

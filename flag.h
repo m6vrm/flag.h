@@ -71,12 +71,12 @@ bool flag_parse(int argc, char** argv) {
     flag_program = argv[0];
     for (int i = 1; i < argc; ++i) {
         char* arg = argv[i];
-        if (*arg != '-') {
+        if (strncmp(arg, "--", 2) != 0) {
             fprintf(stderr, "%s: invalid argument\n", arg);
             return false;
         }
 
-        ++arg;
+        arg += 2;  // skip dashes
         char* name = arg;
         char* value = NULL;
         char* equal = strchr(arg, '=');
@@ -87,14 +87,14 @@ bool flag_parse(int argc, char** argv) {
 
         Flag* flag = flag_find(name);
         if (flag == NULL) {
-            fprintf(stderr, "-%s: unknown flag\n", name);
+            fprintf(stderr, "--%s: unknown flag\n", name);
             return false;
         }
 
         switch (flag->type) {
             case FLAG_STR: {
                 if (value == NULL) {
-                    fprintf(stderr, "-%s: no value provided\n", name);
+                    fprintf(stderr, "--%s: no value provided\n", name);
                     return false;
                 }
 
@@ -102,14 +102,14 @@ bool flag_parse(int argc, char** argv) {
             } break;
             case FLAG_INT64: {
                 if (value == NULL) {
-                    fprintf(stderr, "-%s: no value provided\n", name);
+                    fprintf(stderr, "--%s: no value provided\n", name);
                     return false;
                 }
 
                 char* end;
                 int64_t number = strtoll(value, &end, 10);
                 if (*end != '\0') {
-                    fprintf(stderr, "-%s: invalid number\n", name);
+                    fprintf(stderr, "--%s: invalid number\n", name);
                     return false;
                 }
 
@@ -123,7 +123,7 @@ bool flag_parse(int argc, char** argv) {
                 } else if (strcmp(value, "false") == 0 || strcmp(value, "0") == 0) {
                     flag->value.as_bool = false;
                 } else {
-                    fprintf(stderr, "-%s: invalid value\n", name);
+                    fprintf(stderr, "--%s: invalid value\n", name);
                     return false;
                 }
             } break;
@@ -147,13 +147,13 @@ void flag_usage(FILE* out) {
         int name_len = 0;
         switch (flag->type) {
             case FLAG_STR: {
-                name_len = snprintf(name, sizeof(name), "  -%s=string", flag->name);
+                name_len = snprintf(name, sizeof(name), "  --%s=string", flag->name);
             } break;
             case FLAG_INT64: {
-                name_len = snprintf(name, sizeof(name), "  -%s=number", flag->name);
+                name_len = snprintf(name, sizeof(name), "  --%s=number", flag->name);
             } break;
             case FLAG_BOOL: {
-                name_len = snprintf(name, sizeof(name), "  -%s", flag->name);
+                name_len = snprintf(name, sizeof(name), "  --%s", flag->name);
             } break;
         }
 
