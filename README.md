@@ -44,3 +44,12 @@ int main(int argc, char** argv) {
 
     cc -o example example.c
     ./example --help
+
+```
+usage: ./example [flags]
+
+  --str=string               string flag (default "Hello, World!")
+  --int64=number             int64 flag (default 42)
+  --bool                     bool flag (default)
+  --help                     show help
+```
