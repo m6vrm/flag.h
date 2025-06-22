@@ -1,6 +1,10 @@
 test: flag_test
 	./flag_test
 
+clean:
+	$(RM) flag_test
+	$(RM) example
+
 format:
 	clang-format -i flag.h flag_test.c example.c
 
@@ -10,4 +14,4 @@ flag_test: flag_test.c flag.h
 example: example.c flag.h
 	cc -o $@ $< -Wall -Wextra -Wpedantic
 
-.PHONY: test format
+.PHONY: test clean format
