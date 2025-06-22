@@ -3,7 +3,7 @@ flag.h
 
 Command-line flag parsing in C.
 
-Inspired by Go flag package: https://pkg.go.dev/flag
+>   Inspired by Go flag package: https://pkg.go.dev/flag.
 
 Example
 -------
