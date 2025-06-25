@@ -30,17 +30,17 @@ jobs:
         - example
         exclude:
         - os: ubuntu-latest
-          compiler.name: clang
+          compiler: { name: clang }
         - os: ubuntu-latest
-          compiler.name: clang++
+          compiler: { name: clang++ }
         - os: macos-latest
-          compiler.name: clang
+          compiler: { name: clang }
         - os: macos-latest
-          compiler.name: clang++
+          compiler: { name: clang++ }
         - os: windows-latest
-          compiler.name: cc
+          compiler: { name: cc }
         - os: windows-latest
-          compiler.name: c++
+          compiler: { name: c++ }
 
     runs-on: ${{ matrix.os }}
     steps:
