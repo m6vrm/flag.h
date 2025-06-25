@@ -18,11 +18,11 @@ jobs:
         - windows-latest
         compiler:
         - name: cc
-          std: c90
+          std: c99
         - name: c++
           std: c++20
         - name: clang
-          std: c90
+          std: c99
         - name: clang++
           std: c++20
         build:
