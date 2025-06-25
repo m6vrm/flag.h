@@ -47,7 +47,7 @@ jobs:
     - uses: actions/checkout@v4
     - name: build
       shell: bash
-      run: ${{ matrix.compiler.name }} -o ${{ matrix.build }} ${{ matrix.build }}.cpp -std=${{ matrix.compiler.std }} -Wall -Wextra -Wpedantic -g3 -fsanitize=address,undefined
+      run: ${{ matrix.compiler.name }} -o ${{ matrix.build }} ${{ matrix.build }}.c -std=${{ matrix.compiler.std }} -Wall -Wextra -Wpedantic -g3 -fsanitize=address,undefined
     - name: run
       shell: bash
       run: ./${{ matrix.build }}
