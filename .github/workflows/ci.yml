@@ -3,43 +3,39 @@ name: CI
 on:
   push:
     branches:
-    - master
+      - master
   pull_request:
     branches:
-    - master
+      - master
 
 jobs:
-  ci-linux:
-    runs-on: ubuntu-latest
+  build:
+    strategy:
+      matrix:
+        os:
+          - name: ubuntu-latest
+            cc: cc
+            cxx: c++
+          - name: macos-latest
+            cc: cc
+            cxx: c++
+          - name: windows-latest
+            cc: clang
+            cxx: clang++
+        compiler:
+          - lang: cc
+            std: c90
+          - lang: cxx
+            std: c++20
+        build:
+          - flag_test
+          - example
+    runs-on: ${{ matrix.os.name }}
     steps:
     - uses: actions/checkout@v4
     - name: build
-      run: |
-        c++ -o flag_test flag_test.c -Wall -Wextra -Wpedantic -std=c++20
-        cc -o flag_test flag_test.c -Wall -Wextra -Wpedantic -std=c99
+      shell: bash
+      run: ${{ matrix.os.${{ matrix.compiler.lang }} }} -o ${{ matrix.build }} ${{ matrix.build }}.cpp -std=${{ matrix.compiler.std }} -Wall -Wextra -Wpedantic -g3 -fsanitize=address,undefined
     - name: run
-      run: ./flag_test
-
-  ci-windows:
-    runs-on: windows-latest
-    steps:
-    - uses: actions/checkout@v4
-    - name: build
-      shell: cmd
-      run: |
-        clang++ -o flag_test.exe flag_test.c -Wall -Wextra -Wpedantic -std=c++20
-        clang -o flag_test.exe flag_test.c -Wall -Wextra -Wpedantic -std=c99
-    - name: run
-      shell: cmd
-      run: call flag_test.exe
-
-  ci-macos:
-    runs-on: macos-latest
-    steps:
-    - uses: actions/checkout@v4
-    - name: build
-      run: |
-        c++ -o flag_test flag_test.c -Wall -Wextra -Wpedantic -std=c++20
-        cc -o flag_test flag_test.c -Wall -Wextra -Wpedantic -std=c99
-    - name: run
-      run: ./flag_test
+      shell: bash
+      run: ./${{ matrix.build }}

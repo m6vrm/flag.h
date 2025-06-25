@@ -5,13 +5,13 @@ Command-line flag parsing in C.
 
 >   Inspired by Go flag package: https://pkg.go.dev/flag.
 
-Example
--------
+Usage
+-----
+
+Add `flag.h` to your project.
 
 ```c
-#include <inttypes.h>
 #include <stdbool.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -20,8 +20,8 @@ Example
 
 int main(int argc, char** argv) {
     const char** str_flag = flag_str("str", "Hello, World!", "string flag");
-    int64_t* int64_flag = flag_int64("int64", 42, "int64 flag");
-    bool* bool_flag = flag_bool("bool", false, "bool flag");
+    long long* long_flag = flag_long("long", 42, "long flag");
+    bool* bool_flag = flag_bool("bool", true, "bool flag");
     bool* help_flag = flag_bool("help", false, "show help");
 
     if (!flag_parse(argc, argv)) {
@@ -35,21 +35,18 @@ int main(int argc, char** argv) {
     }
 
     printf("str: %s\n", *str_flag);
-    printf("int64: %" PRIi64 "\n", *int64_flag);
+    printf("long: %lld\n", *long_flag);
     printf("bool: %s\n", *bool_flag ? "true" : "false");
 
     return EXIT_SUCCESS;
 }
 ```
 
-    cc -o example example.c
-    ./example --help
-
 ```
 usage: ./example [flags]
 
   --str=string               string flag (default "Hello, World!")
-  --int64=number             int64 flag (default 42)
+  --long=number              long flag (default 42)
   --bool                     bool flag (default)
   --help                     show help
 ```
