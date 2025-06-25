@@ -13,29 +13,41 @@ jobs:
     strategy:
       matrix:
         os:
-        - name: ubuntu-latest
-          cc: cc
-          cxx: c++
-        - name: macos-latest
-          cc: cc
-          cxx: c++
-        - name: windows-latest
-          cc: clang
-          cxx: clang++
+        - ubuntu-latest
+        - macos-latest
+        - windows-latest
         compiler:
-        - lang: cc
+        - name: cc
           std: c90
-        - lang: cxx
+        - name: c++
+          std: c++20
+        - name: clang
+          std: c90
+        - name: clang++
           std: c++20
         build:
         - flag_test
         - example
-    runs-on: ${{ matrix.os.name }}
+        exclude:
+        - os: ubuntu-latest
+          compiler.name: clang
+        - os: ubuntu-latest
+          compiler.name: clang++
+        - os: macos-latest
+          compiler.name: clang
+        - os: macos-latest
+          compiler.name: clang++
+        - os: windows-latest
+          compiler.name: cc
+        - os: windows-latest
+          compiler.name: c++
+
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
     - name: build
       shell: bash
-      run: ${{ matrix.os.${{ matrix.compiler.lang }} }} -o ${{ matrix.build }} ${{ matrix.build }}.cpp -std=${{ matrix.compiler.std }} -Wall -Wextra -Wpedantic -g3 -fsanitize=address,undefined
+      run: ${{ matrix.compiler.name }} -o ${{ matrix.build }} ${{ matrix.build }}.cpp -std=${{ matrix.compiler.std }} -Wall -Wextra -Wpedantic -g3 -fsanitize=address,undefined
     - name: run
       shell: bash
       run: ./${{ matrix.build }}
