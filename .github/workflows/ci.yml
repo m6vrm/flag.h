@@ -3,33 +3,33 @@ name: CI
 on:
   push:
     branches:
-      - master
+    - master
   pull_request:
     branches:
-      - master
+    - master
 
 jobs:
   build:
     strategy:
       matrix:
         os:
-          - name: ubuntu-latest
-            cc: cc
-            cxx: c++
-          - name: macos-latest
-            cc: cc
-            cxx: c++
-          - name: windows-latest
-            cc: clang
-            cxx: clang++
+        - name: ubuntu-latest
+          cc: cc
+          cxx: c++
+        - name: macos-latest
+          cc: cc
+          cxx: c++
+        - name: windows-latest
+          cc: clang
+          cxx: clang++
         compiler:
-          - lang: cc
-            std: c90
-          - lang: cxx
-            std: c++20
+        - lang: cc
+          std: c90
+        - lang: cxx
+          std: c++20
         build:
-          - flag_test
-          - example
+        - flag_test
+        - example
     runs-on: ${{ matrix.os.name }}
     steps:
     - uses: actions/checkout@v4
