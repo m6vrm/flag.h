@@ -1,5 +1,6 @@
 // https://github.com/m6vrm/flag.h
-#pragma once
+#ifndef FLAG_H
+#define FLAG_H
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -9,6 +10,8 @@ long long* flag_long(const char* name, long long def, const char* desc);
 bool* flag_bool(const char* name, bool def, const char* desc);
 bool flag_parse(int argc, char** argv);
 void flag_usage(FILE* out);
+
+#endif  //  FLAG_H
 
 #ifdef FLAG_IMPLEMENTATION
 
