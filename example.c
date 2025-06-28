@@ -1,4 +1,6 @@
+#include <inttypes.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -7,7 +9,7 @@
 
 int main(int argc, char** argv) {
     const char** str_flag = flag_str("str", "Hello, World!", "string flag");
-    long long* long_flag = flag_long("long", 42, "long flag");
+    int64_t* int64_flag = flag_int64("int64", 42, "int64 flag");
     bool* bool_flag = flag_bool("bool", true, "bool flag");
     bool* help_flag = flag_bool("help", false, "show help");
 
@@ -22,7 +24,7 @@ int main(int argc, char** argv) {
     }
 
     printf("str: %s\n", *str_flag);
-    printf("long: %lld\n", *long_flag);
+    printf("int64: %" PRIi64 "\n", *int64_flag);
     printf("bool: %s\n", *bool_flag ? "true" : "false");
 
     return EXIT_SUCCESS;

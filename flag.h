@@ -3,10 +3,11 @@
 #define FLAG_H
 
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 
 const char** flag_str(const char* name, const char* def, const char* desc);
-long long* flag_long(const char* name, long long def, const char* desc);
+int64_t* flag_int64(const char* name, int64_t def, const char* desc);
 bool* flag_bool(const char* name, bool def, const char* desc);
 bool flag_parse(int argc, char** argv);
 void flag_usage(FILE* out);
@@ -16,18 +17,19 @@ void flag_usage(FILE* out);
 #ifdef FLAG_IMPLEMENTATION
 
 #include <assert.h>
+#include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
 
 typedef enum {
     FLAG_STR,
-    FLAG_LONG,
+    FLAG_INT64,
     FLAG_BOOL,
 } FlagType;
 
 typedef union {
     const char* as_str;
-    long long as_long;
+    int64_t as_int64;
     bool as_bool;
 } FlagValue;
 
@@ -55,10 +57,10 @@ const char** flag_str(const char* name, const char* def, const char* desc) {
     return &flag_new(FLAG_STR, name, desc, value)->value.as_str;
 }
 
-long long* flag_long(const char* name, long long def, const char* desc) {
+int64_t* flag_int64(const char* name, int64_t def, const char* desc) {
     FlagValue value;
-    value.as_long = def;
-    return &flag_new(FLAG_LONG, name, desc, value)->value.as_long;
+    value.as_int64 = def;
+    return &flag_new(FLAG_INT64, name, desc, value)->value.as_int64;
 }
 
 bool* flag_bool(const char* name, bool def, const char* desc) {
@@ -101,20 +103,20 @@ bool flag_parse(int argc, char** argv) {
 
                 flag->value.as_str = value;
             } break;
-            case FLAG_LONG: {
+            case FLAG_INT64: {
                 if (value == NULL) {
                     fprintf(stderr, "--%s: no value provided\n", name);
                     return false;
                 }
 
                 char* end;
-                long long number = strtoll(value, &end, 10);
+                int64_t number = strtoll(value, &end, 10);
                 if (*end != '\0') {
                     fprintf(stderr, "--%s: invalid number\n", name);
                     return false;
                 }
 
-                flag->value.as_long = number;
+                flag->value.as_int64 = number;
             } break;
             case FLAG_BOOL: {
                 if (value == NULL) {
@@ -150,7 +152,7 @@ void flag_usage(FILE* out) {
             case FLAG_STR: {
                 name_len = snprintf(name, sizeof(name), "  --%s=string", flag->name);
             } break;
-            case FLAG_LONG: {
+            case FLAG_INT64: {
                 name_len = snprintf(name, sizeof(name), "  --%s=number", flag->name);
             } break;
             case FLAG_BOOL: {
@@ -171,8 +173,8 @@ void flag_usage(FILE* out) {
                 if (flag->def.as_str != NULL)
                     fprintf(out, " (default \"%s\")", flag->def.as_str);
             } break;
-            case FLAG_LONG: {
-                fprintf(out, " (default %lld)", flag->def.as_long);
+            case FLAG_INT64: {
+                fprintf(out, " (default %" PRIi64 ")", flag->def.as_int64);
             } break;
             case FLAG_BOOL: {
                 if (flag->def.as_bool)
