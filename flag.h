@@ -3,12 +3,11 @@
 #define FLAG_H
 
 #include <stdbool.h>
-#include <stdint.h>
 #include <stdio.h>
 
-const char** flag_str(const char* name, const char* def, const char* desc);
-int64_t* flag_int64(const char* name, int64_t def, const char* desc);
-bool* flag_bool(const char* name, bool def, const char* desc);
+const char** flag_string(const char* name, const char* fallback, const char* summary);
+double* flag_number(const char* name, double fallback, const char* summary);
+bool* flag_bool(const char* name, bool fallback, const char* summary);
 bool flag_parse(int argc, char** argv);
 void flag_usage(FILE* out);
 
@@ -17,27 +16,26 @@ void flag_usage(FILE* out);
 #ifdef FLAG_IMPLEMENTATION
 
 #include <assert.h>
-#include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
 
 typedef enum {
-    FLAG_STR,
-    FLAG_INT64,
+    FLAG_STRING,
+    FLAG_NUMBER,
     FLAG_BOOL,
 } FlagType;
 
 typedef union {
-    const char* as_str;
-    int64_t as_int64;
+    const char* as_string;
+    double as_number;
     bool as_bool;
 } FlagValue;
 
 typedef struct {
     FlagType type;
     const char* name;
-    const char* desc;
-    FlagValue def;
+    const char* summary;
+    FlagValue fallback;
     FlagValue value;
 } Flag;
 
@@ -48,25 +46,44 @@ static Flag flags[FLAG_MAX];
 static int flags_count = 0;
 static const char* flag_program;
 
-static Flag* flag_new(FlagType type, const char* name, const char* desc, FlagValue def);
-static Flag* flag_find(const char* name);
+static Flag* flag_find(const char* name) {
+    for (int i = 0; i < flags_count; i++) {
+        if (strcmp(flags[i].name, name) == 0)
+            return &flags[i];
+    }
 
-const char** flag_str(const char* name, const char* def, const char* desc) {
-    FlagValue value;
-    value.as_str = def;
-    return &flag_new(FLAG_STR, name, desc, value)->value.as_str;
+    return NULL;
 }
 
-int64_t* flag_int64(const char* name, int64_t def, const char* desc) {
-    FlagValue value;
-    value.as_int64 = def;
-    return &flag_new(FLAG_INT64, name, desc, value)->value.as_int64;
+static Flag* flag_new(FlagType type, const char* name, const char* summary, FlagValue fallback) {
+    assert(flags_count < FLAG_MAX);
+    assert(flag_find(name) == NULL);
+    assert(flag_program == NULL);
+    Flag* flag = &flags[flags_count++];
+    flag->type = type;
+    flag->name = name;
+    flag->summary = summary;
+    flag->fallback = fallback;
+    flag->value = fallback;
+    return flag;
 }
 
-bool* flag_bool(const char* name, bool def, const char* desc) {
+const char** flag_string(const char* name, const char* fallback, const char* summary) {
     FlagValue value;
-    value.as_bool = def;
-    return &flag_new(FLAG_BOOL, name, desc, value)->value.as_bool;
+    value.as_string = fallback;
+    return &flag_new(FLAG_STRING, name, summary, value)->value.as_string;
+}
+
+double* flag_number(const char* name, double fallback, const char* summary) {
+    FlagValue value;
+    value.as_number = fallback;
+    return &flag_new(FLAG_NUMBER, name, summary, value)->value.as_number;
+}
+
+bool* flag_bool(const char* name, bool fallback, const char* summary) {
+    FlagValue value;
+    value.as_bool = fallback;
+    return &flag_new(FLAG_BOOL, name, summary, value)->value.as_bool;
 }
 
 bool flag_parse(int argc, char** argv) {
@@ -95,28 +112,28 @@ bool flag_parse(int argc, char** argv) {
         }
 
         switch (flag->type) {
-            case FLAG_STR: {
+            case FLAG_STRING: {
                 if (value == NULL) {
                     fprintf(stderr, "--%s: no value provided\n", name);
                     return false;
                 }
 
-                flag->value.as_str = value;
+                flag->value.as_string = value;
             } break;
-            case FLAG_INT64: {
+            case FLAG_NUMBER: {
                 if (value == NULL) {
                     fprintf(stderr, "--%s: no value provided\n", name);
                     return false;
                 }
 
                 char* end;
-                int64_t number = strtoll(value, &end, 10);
+                double number = strtod(value, &end);
                 if (*end != '\0') {
                     fprintf(stderr, "--%s: invalid number\n", name);
                     return false;
                 }
 
-                flag->value.as_int64 = number;
+                flag->value.as_number = number;
             } break;
             case FLAG_BOOL: {
                 if (value == NULL) {
@@ -149,10 +166,10 @@ void flag_usage(FILE* out) {
         char name[64];
         int name_len = 0;
         switch (flag->type) {
-            case FLAG_STR: {
+            case FLAG_STRING: {
                 name_len = snprintf(name, sizeof(name), "  --%s=string", flag->name);
             } break;
-            case FLAG_INT64: {
+            case FLAG_NUMBER: {
                 name_len = snprintf(name, sizeof(name), "  --%s=number", flag->name);
             } break;
             case FLAG_BOOL: {
@@ -160,52 +177,30 @@ void flag_usage(FILE* out) {
             } break;
         }
 
-        // description
+        // summary
         if (name_len <= 27) {
-            fprintf(out, "%-27s  %s", name, flag->desc);
+            fprintf(out, "%-27s  %s", name, flag->summary);
         } else {
-            fprintf(out, "%s\n%38s", name, flag->desc);
+            fprintf(out, "%s\n%38s", name, flag->summary);
         }
 
         // default
         switch (flag->type) {
-            case FLAG_STR: {
-                if (flag->def.as_str != NULL)
-                    fprintf(out, " (default \"%s\")", flag->def.as_str);
+            case FLAG_STRING: {
+                if (flag->fallback.as_string != NULL)
+                    fprintf(out, " (default \"%s\")", flag->fallback.as_string);
             } break;
-            case FLAG_INT64: {
-                fprintf(out, " (default %" PRIi64 ")", flag->def.as_int64);
+            case FLAG_NUMBER: {
+                fprintf(out, " (default %.2f)", flag->fallback.as_number);
             } break;
             case FLAG_BOOL: {
-                if (flag->def.as_bool)
+                if (flag->fallback.as_bool)
                     fprintf(out, " (default)");
             } break;
         }
 
         fprintf(out, "\n");
     }
-}
-
-static Flag* flag_new(FlagType type, const char* name, const char* desc, FlagValue def) {
-    assert(flags_count < FLAG_MAX);
-    assert(flag_find(name) == NULL);
-    assert(flag_program == NULL);
-    Flag* flag = &flags[flags_count++];
-    flag->type = type;
-    flag->name = name;
-    flag->desc = desc;
-    flag->def = def;
-    flag->value = def;
-    return flag;
-}
-
-static Flag* flag_find(const char* name) {
-    for (int i = 0; i < flags_count; i++) {
-        if (strcmp(flags[i].name, name) == 0)
-            return &flags[i];
-    }
-
-    return NULL;
 }
 
 #endif  // FLAG_IMPLEMENTATION

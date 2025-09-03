@@ -11,41 +11,38 @@ jobs:
     strategy:
       matrix:
         os:
-        - ubuntu-latest
-        - macos-latest
-        - windows-latest
-        compiler:
-        - name: cc
+        - name: ubuntu-latest
+          compiler: cc
           std: c99
-        - name: c++
+          sanitize: -g3 -fsanitize=address,undefined
+        - name: ubuntu-latest
+          compiler: c++
           std: c++20
-        - name: clang
+          sanitize: -g3 -fsanitize=address,undefined
+        - name: macos-latest
+          compiler: cc
           std: c99
-        - name: clang++
+          sanitize: -g3 -fsanitize=address,undefined
+        - name: macos-latest
+          compiler: c++
+          std: c++20
+          sanitize: -g3 -fsanitize=address,undefined
+        - name: windows-latest
+          compiler: clang
+          std: c99
+        - name: windows-latest
+          compiler: clang++
           std: c++20
         build:
         - flag_test
         - example
-        exclude:
-        - os: ubuntu-latest
-          compiler: { name: clang }
-        - os: ubuntu-latest
-          compiler: { name: clang++ }
-        - os: macos-latest
-          compiler: { name: clang }
-        - os: macos-latest
-          compiler: { name: clang++ }
-        - os: windows-latest
-          compiler: { name: cc }
-        - os: windows-latest
-          compiler: { name: c++ }
 
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os.name }}
     steps:
     - uses: actions/checkout@v4
     - name: build
       shell: bash
-      run: ${{ matrix.compiler.name }} -o ${{ matrix.build }} ${{ matrix.build }}.c -std=${{ matrix.compiler.std }} -Wall -Wextra -Wpedantic -g3 -fsanitize=address,undefined
+      run: ${{ matrix.os.compiler }} -o ${{ matrix.build }} ${{ matrix.build }}.c -std=${{ matrix.os.std }} -Wall -Wextra -Wpedantic ${{ matrix.os.sanitize }}
     - name: run
       shell: bash
       run: ./${{ matrix.build }}
