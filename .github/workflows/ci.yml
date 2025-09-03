@@ -37,7 +37,7 @@ jobs:
         - flag_test
         - example
 
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os.name }}
     steps:
     - uses: actions/checkout@v4
     - name: build
