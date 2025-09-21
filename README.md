@@ -44,8 +44,8 @@ int main(int argc, char** argv) {
 ```
 usage: ./example [flags]
 
-  --string=string            string flag (default "Hello, World!")
-  --number=number            number flag (default 42.00)
+  --string string            string flag (default "Hello, World!")
+  --number number            number flag (default 42.00)
   --bool                     bool flag (default)
   --help                     show help
 ```
