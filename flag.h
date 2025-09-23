@@ -96,15 +96,7 @@ bool flag_parse(int argc, char** argv) {
             return false;
         }
 
-        arg += 2;  // skip dashes
-        char* name = arg;
-        char* value = NULL;
-        char* equal = strchr(arg, '=');
-        if (equal != NULL) {
-            *equal = '\0';
-            value = equal + 1;
-        }
-
+        char* name = arg + 2;  // skip dashes
         Flag* flag = flag_find(name);
         if (flag == NULL) {
             fprintf(stderr, "--%s: unknown flag\n", name);
@@ -113,19 +105,20 @@ bool flag_parse(int argc, char** argv) {
 
         switch (flag->type) {
             case FLAG_STRING: {
-                if (value == NULL) {
+                if (i + 1 >= argc || strncmp(argv[i + 1], "--", 2) == 0) {
                     fprintf(stderr, "--%s: no value provided\n", name);
                     return false;
                 }
 
-                flag->value.as_string = value;
+                flag->value.as_string = argv[++i];
             } break;
             case FLAG_NUMBER: {
-                if (value == NULL) {
+                if (i + 1 >= argc || strncmp(argv[i + 1], "--", 2) == 0) {
                     fprintf(stderr, "--%s: no value provided\n", name);
                     return false;
                 }
 
+                char* value = argv[++i];
                 char* end;
                 double number = strtod(value, &end);
                 if (*end != '\0') {
@@ -136,15 +129,18 @@ bool flag_parse(int argc, char** argv) {
                 flag->value.as_number = number;
             } break;
             case FLAG_BOOL: {
-                if (value == NULL) {
+                if (i + 1 >= argc || strncmp(argv[i + 1], "--", 2) == 0) {
                     flag->value.as_bool = true;
-                } else if (strcmp(value, "true") == 0 || strcmp(value, "1") == 0) {
-                    flag->value.as_bool = true;
-                } else if (strcmp(value, "false") == 0 || strcmp(value, "0") == 0) {
-                    flag->value.as_bool = false;
                 } else {
-                    fprintf(stderr, "--%s: invalid value\n", name);
-                    return false;
+                    char* value = argv[++i];
+                    if (strcmp(value, "true") == 0 || strcmp(value, "1") == 0) {
+                        flag->value.as_bool = true;
+                    } else if (strcmp(value, "false") == 0 || strcmp(value, "0") == 0) {
+                        flag->value.as_bool = false;
+                    } else {
+                        fprintf(stderr, "--%s: invalid value\n", name);
+                        return false;
+                    }
                 }
             } break;
         }
@@ -167,10 +163,10 @@ void flag_usage(FILE* out) {
         int name_len = 0;
         switch (flag->type) {
             case FLAG_STRING: {
-                name_len = snprintf(name, sizeof(name), "  --%s=string", flag->name);
+                name_len = snprintf(name, sizeof(name), "  --%s string", flag->name);
             } break;
             case FLAG_NUMBER: {
-                name_len = snprintf(name, sizeof(name), "  --%s=number", flag->name);
+                name_len = snprintf(name, sizeof(name), "  --%s number", flag->name);
             } break;
             case FLAG_BOOL: {
                 name_len = snprintf(name, sizeof(name), "  --%s", flag->name);
@@ -191,7 +187,7 @@ void flag_usage(FILE* out) {
                     fprintf(out, " (default \"%s\")", flag->fallback.as_string);
             } break;
             case FLAG_NUMBER: {
-                fprintf(out, " (default %.2f)", flag->fallback.as_number);
+                fprintf(out, " (default %g)", flag->fallback.as_number);
             } break;
             case FLAG_BOOL: {
                 if (flag->fallback.as_bool)

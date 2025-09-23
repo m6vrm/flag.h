@@ -17,9 +17,13 @@ int main(void) {
     const char** string_flag = flag_string("string", "Hello, World!", "string flag");
     double* number_flag = flag_number("number", 42, "number flag");
     bool* bool_flag = flag_bool("bool", false, "bool flag");
+    bool* flag_flag = flag_bool("flag", false, "another bool flag");
 
-    char* args[] = {strdup("flag_test"), strdup("--string=bla bla"), strdup("--number=-69"),
-                    strdup("--bool=true")};
+    char* args[] = {strdup("flag_test"),                     //
+                    strdup("--string"),  strdup("bla bla"),  //
+                    strdup("--number"),  strdup("-69"),      //
+                    strdup("--bool"),    strdup("true"),     //
+                    strdup("--flag")};
 
     assert(flag_parse(sizeof(args) / sizeof(args[0]), args));
 
@@ -30,6 +34,7 @@ int main(void) {
     assert(strcmp(*string_flag, "bla bla") == 0);
     assert(*number_flag == -69);
     assert(*bool_flag == true);
+    assert(*flag_flag == true);
 
     printf("success\n");
 

@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
     }
 
     printf("string: %s\n", *string_flag);
-    printf("number: %f\n", *number_flag);
+    printf("number: %g\n", *number_flag);
     printf("bool: %s\n", *bool_flag ? "true" : "false");
 
     return 0;
@@ -44,8 +44,8 @@ int main(int argc, char** argv) {
 ```
 usage: ./example [flags]
 
-  --string=string            string flag (default "Hello, World!")
-  --number=number            number flag (default 42.00)
+  --string string            string flag (default "Hello, World!")
+  --number number            number flag (default 42)
   --bool                     bool flag (default)
   --help                     show help
 ```
