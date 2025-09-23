@@ -187,7 +187,7 @@ void flag_usage(FILE* out) {
                     fprintf(out, " (default \"%s\")", flag->fallback.as_string);
             } break;
             case FLAG_NUMBER: {
-                fprintf(out, " (default %.2f)", flag->fallback.as_number);
+                fprintf(out, " (default %g)", flag->fallback.as_number);
             } break;
             case FLAG_BOOL: {
                 if (flag->fallback.as_bool)
